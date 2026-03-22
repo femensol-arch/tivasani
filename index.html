@@ -1,15 +1,18 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TIVASANI">
 <meta name="theme-color" content="#2563eb">
-<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="application-name" content="TIVASANI">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <title>Lista de Precios 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -792,6 +795,14 @@
 
 
 </style>
+
+<!--[if gte mso 9]><xml>
+<mso:CustomDocumentProperties>
+<mso:_dlc_DocId msdt:dt="string">TSSAYE34R63K-36-1789102</mso:_dlc_DocId>
+<mso:_dlc_DocIdItemGuid msdt:dt="string">0cb29c4f-57c5-4518-a723-8e14c1bad8e2</mso:_dlc_DocIdItemGuid>
+<mso:_dlc_DocIdUrl msdt:dt="string">https://vitasanitas.sharepoint.com/Contabilidad/_layouts/15/DocIdRedir.aspx?ID=TSSAYE34R63K-36-1789102, TSSAYE34R63K-36-1789102</mso:_dlc_DocIdUrl>
+</mso:CustomDocumentProperties>
+</xml><![endif]-->
 </head>
 <body>
 
@@ -1511,11 +1522,57 @@ radioAudio.addEventListener('error', () => {
 
 </script>
 
+<style>
+#pwa-install-bar {
+  display: none;
+  position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+  background: #2563eb; color: #fff;
+  padding: 12px 24px; border-radius: 40px;
+  font-family: "Inter", sans-serif; font-size: 13px; font-weight: 600;
+  box-shadow: 0 4px 20px rgba(37,99,235,0.45);
+  cursor: pointer; z-index: 99999; gap: 8px;
+  align-items: center; white-space: nowrap;
+  animation: slideUp 0.4s ease;
+}
+@keyframes slideUp { from { bottom: -60px; opacity:0; } to { bottom: 18px; opacity:1; } }
+#pwa-install-bar:hover { background: #1d4ed8; transform: translateX(-50%) scale(1.03); }
+</style>
+<div id="pwa-install-bar" onclick="pwaTriggerInstall()">
+  📲 Instalar TIVASANI como app  ×
+</div>
 <script>
+let pwaPrompt = null;
+
+// Captura el evento ANTES de que Chrome lo descarte
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  pwaPrompt = e;
+  // Muestra botón personalizado
+  document.getElementById('pwa-install-bar').style.display = 'flex';
+});
+
+function pwaTriggerInstall() {
+  if (pwaPrompt) {
+    pwaPrompt.prompt();
+    pwaPrompt.userChoice.then(choice => {
+      if (choice.outcome === 'accepted') {
+        document.getElementById('pwa-install-bar').style.display = 'none';
+      }
+      pwaPrompt = null;
+    });
+  }
+}
+
+// Oculta el botón si ya está instalada
+window.addEventListener('appinstalled', () => {
+  document.getElementById('pwa-install-bar').style.display = 'none';
+});
+
+// Registra Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
-      .then(r => console.log('SW registrado:', r.scope))
+      .then(r => console.log('✓ SW:', r.scope))
       .catch(e => console.warn('SW error:', e));
   });
 }

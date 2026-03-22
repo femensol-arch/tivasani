@@ -1,30 +1,52 @@
-// Service Worker — TIVASANI Lista de Precios PWA
-const CACHE = 'tivasani-v1';
-const ASSETS = [
-  './',
-  './index.html',
-];
+const CACHE_NAME = 'tivasani-v2';
 
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+// Al instalar: cachea el HTML principal
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll([
+        '/',
+        '/index.html',
+        '/icon-192.png',
+        '/icon-512.png',
+        '/manifest.json'
+      ]);
+    }).then(() => self.skipWaiting())
   );
 });
 
-self.addEventListener('activate', e => {
-  e.waitUntil(
+// Al activar: borra caches viejos
+self.addEventListener('activate', event => {
+  event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+      Promise.all(
+        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+      )
     ).then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', e => {
-  // Network-first para la radio (streams externos), cache-first para assets locales
-  if (e.request.url.includes('radio-browser') || e.request.url.includes('.mp3') || e.request.url.includes('somafm')) {
-    return; // dejar pasar sin interceptar
-  }
-  e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request).catch(() => caches.match('./index.html')))
+// Fetch: cache-first para assets locales, network-only para streams de radio
+self.addEventListener('fetch', event => {
+  const url = event.request.url;
+  
+  // No interceptar peticiones externas (radio, API, fonts)
+  if (!url.startsWith(self.location.origin)) return;
+
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      if (cached) return cached;
+      return fetch(event.request).then(response => {
+        // Cachea respuestas válidas
+        if (response && response.status === 200 && response.type === 'basic') {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
+        }
+        return response;
+      }).catch(() => {
+        // Offline: sirve index.html
+        return caches.match('/index.html');
+      });
+    })
   );
 });
