@@ -1,0 +1,17 @@
+{
+  "name": "TIVASANI — Lista de Precios 2026",
+  "short_name": "TIVASANI",
+  "description": "Inventario médico y lista de precios 2026",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f0f4ff",
+  "theme_color": "#2563eb",
+  "lang": "es-MX",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["business", "medical"],
+  "screenshots": []
+}
